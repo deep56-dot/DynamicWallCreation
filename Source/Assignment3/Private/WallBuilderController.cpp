@@ -31,7 +31,7 @@ void AWallBuilderController::BeginPlay()
 	Super::BeginPlay();
 	AWallSpline* WallObj = NewObject<AWallSpline>(this);
 	WallSplineArr.Add(WallObj);
-	/*CurrWall = WallSplineArr.Num() - 1;*/
+	CurrWall = WallSplineArr.Num() - 1;
 	SetShowMouseCursor(true);
 
 }
@@ -95,11 +95,22 @@ void AWallBuilderController::SetupInputComponent()
 void AWallBuilderController::Delete()
 {
 	if (WallSplineArr.Num()>0) {
-			WallSplineArr[WallSplineArr.Num()-1]->Destroy();
-			WallSplineArr.RemoveAt(WallSplineArr.Num() - 1);
+			WallSplineArr[CurrWall]->Destroy();
+			WallSplineArr.RemoveAt(CurrWall);
+			WallConstructionDelegate.ExecuteIfBound(FString("Current Wall Deleted"));
+
+			if (CurrWall > 0)
+				CurrWall--;
 	}
-	if(WallSplineArr.Num()<=0)
+	if (WallSplineArr.Num() <= 0) {
 	WallSplineArr.Add(NewObject<AWallSpline>(this));
+	CurrWall = WallSplineArr.Num() - 1;
+	WallConstructionDelegate.ExecuteIfBound(FString("Current Wall Deleted"));
+
+	}
+	if (CurrWall >= WallSplineArr.Num() - 1) {
+		CurrWall = WallSplineArr.Num() - 1;
+	}
 
 }
 
@@ -108,6 +119,8 @@ void AWallBuilderController::DeleteAll()
 	for (int i = 0; i < WallSplineArr.Num(); i++) {
 		WallSplineArr[i]->Destroy();
 	}
+	WallConstructionDelegate.ExecuteIfBound(FString("All Walls Deleted"));
+
 	WallSplineArr.Empty();
 	WallSplineArr.Add(NewObject<AWallSpline>(this));
 }
@@ -122,33 +135,38 @@ void AWallBuilderController::OnLeftClick(const FInputActionValue& ActionValue)
 		FVector ClickLocation = HitResult.Location;
 		/*GEngine->AddOnScreenDebugMessage(-1, 5.f, FColor::Red, FString::Printf(TEXT("Click Location: %s"), *ClickLocation.ToString()));*/
 
-		WallSplineArr[WallSplineArr.Num() - 1]->SetPointLocation(ClickLocation);
-		if(WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.Num()==1)
+		WallSplineArr[CurrWall]->SetPointLocation(ClickLocation);
+		if(WallSplineArr[CurrWall]->SpileArr.Num()==1)
 			WallConstructionDelegate.ExecuteIfBound("Construction Statrted");
 	}
 }
 
 void AWallBuilderController::OnRightClick(const FInputActionValue& ActionValue)
 {
-	if (WallSplineArr[WallSplineArr.Num() - 1]->NoOfSplinePoints>0) {
+	if (WallSplineArr[CurrWall]->NoOfSplinePoints>0) {
 		AWallSpline* WallObj = NewObject<AWallSpline>(this);
 		WallSplineArr.Add(WallObj);
+		CurrWall = WallSplineArr.Num() - 1;
+
 		WallConstructionDelegate.ExecuteIfBound(FString("Construction Completed"));
 	}
 }
 
 void AWallBuilderController::Undo(const FInputActionValue& ActionValue)
 {
+	if (CurrWall >= WallSplineArr.Num() - 1) {
+		CurrWall = WallSplineArr.Num() - 1;
+	}
 	if(WallSplineArr.Num()){
-		if (WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.Num() > 0) {
-			WallSplineArr[WallSplineArr.Num() - 1]->SplineComponent->RemoveSplinePoint(WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.Num());
-			WallSplineArr[WallSplineArr.Num() - 1]->SpileArr[WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.Num() - 1]->DestroyComponent();
-			WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.RemoveAt(WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.Num() - 1);
+		if (WallSplineArr[CurrWall]->SpileArr.Num() > 0) {
+			WallSplineArr[CurrWall]->SplineComponent->RemoveSplinePoint(WallSplineArr[CurrWall]->SpileArr.Num());
+			WallSplineArr[CurrWall]->SpileArr[WallSplineArr[CurrWall]->SpileArr.Num() - 1]->DestroyComponent();
+			WallSplineArr[CurrWall]->SpileArr.RemoveAt(WallSplineArr[CurrWall]->SpileArr.Num() - 1);
 		}
 		else {
-			WallSplineArr[WallSplineArr.Num() - 1]->SplineComponent->ClearSplinePoints();
-			WallSplineArr[WallSplineArr.Num() - 1]->SpileArr.Empty();
-			WallSplineArr.RemoveAt(WallSplineArr.Num() - 1);
+			WallSplineArr[CurrWall]->SplineComponent->ClearSplinePoints();
+			WallSplineArr[CurrWall]->SpileArr.Empty();
+			WallSplineArr.RemoveAt(CurrWall);
 		}
 	}
 	else {
@@ -160,9 +178,11 @@ void AWallBuilderController::OnLeft(const FInputActionValue& ActionValue)
 {
 	if (CurrWall != 0) {
 		CurrWall--;
+		WallConstructionDelegate.ExecuteIfBound(FString::Printf(TEXT("Now You Interact With Wall : %d"), CurrWall+1));
+
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, "No more prwevious wall press right");
+		WallConstructionDelegate.ExecuteIfBound(FString("No more prwevious wall press right"));
 	}
 }
 
@@ -170,9 +190,12 @@ void AWallBuilderController::OnRight(const FInputActionValue& ActionValue)
 {
 	if (CurrWall != WallSplineArr.Num()-1) {
 		CurrWall++;
+		WallConstructionDelegate.ExecuteIfBound(FString::Printf(TEXT("Now You Interact With Wall : %d"), CurrWall + 1));
+
 	}
 	else {
-		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, "No more next wall press left");
+		WallConstructionDelegate.ExecuteIfBound(FString("No more next wall press left"));
+
 	}
 }
 

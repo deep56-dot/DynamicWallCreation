@@ -143,7 +143,7 @@ void ATopDownPawn::Zoom(const FInputActionValue& ActionValue)
 	}
 
 	SpringArmComponent->TargetArmLength = FMath::Clamp(SpringArmComponent->TargetArmLength, -600, -0);
-	SpringArmComponent->TargetOffset.Z = FMath::Clamp(SpringArmComponent->TargetOffset.Z, 0, 3500);
+	SpringArmComponent->TargetOffset.Z = FMath::Clamp(SpringArmComponent->TargetOffset.Z, 125, 3500);
 
 
 	float Angle;
