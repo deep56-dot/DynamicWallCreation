@@ -59,13 +59,13 @@ void AWallBuilderController::SetupInputComponent()
 	UndoAction->ValueType = EInputActionValueType::Boolean;
 	KeyMap(SplineMappingContext, UndoAction, EKeys::Z);
 
-	/*LeftArrow = NewObject<UInputAction>(this);
+	LeftArrow = NewObject<UInputAction>(this);
 	LeftArrow->ValueType = EInputActionValueType::Boolean;
 	KeyMap(SplineMappingContext, LeftArrow, EKeys::Left);
 
 	RightArrow = NewObject<UInputAction>(this);
 	RightArrow->ValueType = EInputActionValueType::Boolean;
-	KeyMap(SplineMappingContext, RightArrow, EKeys::Right);*/
+	KeyMap(SplineMappingContext, RightArrow, EKeys::Right);
 
 	UEnhancedInputComponent* EIC = Cast<UEnhancedInputComponent>(InputComponent);
 
@@ -75,8 +75,8 @@ void AWallBuilderController::SetupInputComponent()
 		EIC->BindAction(LeftClickAction, ETriggerEvent::Completed, this, &AWallBuilderController::OnLeftClick);
 		EIC->BindAction(RightClickAction, ETriggerEvent::Completed, this, &AWallBuilderController::OnRightClick);
 		EIC->BindAction(UndoAction, ETriggerEvent::Completed, this, &AWallBuilderController::Undo);
-		//EIC->BindAction(LeftArrow, ETriggerEvent::Completed, this, &AWallBuilderController::OnLeft);
-		//EIC->BindAction(RightArrow, ETriggerEvent::Completed, this, &AWallBuilderController::OnRight);
+		EIC->BindAction(LeftArrow, ETriggerEvent::Completed, this, &AWallBuilderController::OnLeft);
+		EIC->BindAction(RightArrow, ETriggerEvent::Completed, this, &AWallBuilderController::OnRight);
 
 
 	
@@ -156,24 +156,24 @@ void AWallBuilderController::Undo(const FInputActionValue& ActionValue)
 	}
 }
 
-//void AWallBuilderController::OnLeft(const FInputActionValue& ActionValue)
-//{
-//	if (CurrWall != 0) {
-//		CurrWall--;
-//	}
-//	else {
-//		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, "No more prwevious wall press right");
-//	}
-//}
-//
-//void AWallBuilderController::OnRight(const FInputActionValue& ActionValue)
-//{
-//	if (CurrWall != WallSplineArr.Num()-1) {
-//		CurrWall++;
-//	}
-//	else {
-//		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, "No more next wall press left");
-//	}
-//}
+void AWallBuilderController::OnLeft(const FInputActionValue& ActionValue)
+{
+	if (CurrWall != 0) {
+		CurrWall--;
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, "No more prwevious wall press right");
+	}
+}
+
+void AWallBuilderController::OnRight(const FInputActionValue& ActionValue)
+{
+	if (CurrWall != WallSplineArr.Num()-1) {
+		CurrWall++;
+	}
+	else {
+		GEngine->AddOnScreenDebugMessage(-1, 2, FColor::Emerald, "No more next wall press left");
+	}
+}
 
 

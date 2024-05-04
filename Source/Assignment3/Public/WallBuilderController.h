@@ -34,11 +34,11 @@ public:
 	UPROPERTY()
 	class UInputAction* RightClickAction;
 
-	/*UPROPERTY()
+	UPROPERTY()
 	class UInputAction* LeftArrow;
 
 	UPROPERTY()
-	class UInputAction* RightArrow;*/
+	class UInputAction* RightArrow;
 
 	UPROPERTY()
 	class UInputAction* UndoAction;
@@ -46,8 +46,8 @@ public:
 	UPROPERTY()
 	TArray<AWallSpline*> WallSplineArr;
 
-	//UPROPERTY()
-	//int CurrWall;
+	UPROPERTY()
+	int CurrWall;
 
 	UFUNCTION(BlueprintCallable)
 	void Delete();
@@ -58,8 +58,8 @@ public:
 	void OnLeftClick(const struct FInputActionValue& ActionValue);
 	void OnRightClick(const struct FInputActionValue& ActionValue);
 	void Undo(const struct FInputActionValue& ActionValue);
-	//void OnLeft(const struct FInputActionValue& ActionValue);
-	//void OnRight(const struct FInputActionValue& ActionValue);
+	void OnLeft(const struct FInputActionValue& ActionValue);
+	void OnRight(const struct FInputActionValue& ActionValue);
 
 
 	FWallDelegate WallConstructionDelegate;
