@@ -100,7 +100,7 @@ void AWallBuilderController::Delete()
 			WallConstructionDelegate.ExecuteIfBound(FString("Current Wall Deleted"));
 
 			if (CurrWall > 0)
-				CurrWall--;
+				CurrWall;
 	}
 	if (WallSplineArr.Num() <= 0) {
 	WallSplineArr.Add(NewObject<AWallSpline>(this));
